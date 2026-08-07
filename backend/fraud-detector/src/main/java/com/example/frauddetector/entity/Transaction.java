@@ -1,8 +1,6 @@
 package com.example.frauddetector.entity;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -40,29 +38,51 @@ public class Transaction {
 
 
     public Long getId() {
-        return id;
-    }
+    return id;
+}
 
-    public BigDecimal getAmount() {
-        return amount;
-    }
 
-    public String getPlace() {
-        return place;
-    }
+public BigDecimal getAmount() {
+    return amount;
+}
 
-    public String getDevice() {
-        return device;
-    }
+public void setAmount(BigDecimal amount) {
+    this.amount = amount;
+}
 
-    public LocalDateTime getTime() {
-        return time;
-    }
 
-    public User getUser() {
-        return user;
-    }
-     public void setUser(User user) {
-        this.user = user;
-    }
+public String getPlace() {
+    return place;
+}
+
+public void setPlace(String place) {
+    this.place = place;
+}
+
+
+public String getDevice() {
+    return device;
+}
+
+public void setDevice(String device) {
+    this.device = device;
+}
+
+
+public LocalDateTime getTime() {
+    return time;
+}
+
+public void setTime(LocalDateTime time) {
+    this.time = time;
+}
+
+
+public User getUser() {
+    return user;
+}
+
+public void setUser(User user) {
+    this.user = user;
+}
 }
