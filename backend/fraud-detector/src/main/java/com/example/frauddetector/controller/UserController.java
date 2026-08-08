@@ -1,13 +1,13 @@
 package com.example.frauddetector.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.frauddetector.entity.User;
+import com.example.frauddetector.dto.UserRequestDTO;
+import com.example.frauddetector.dto.UserResponseDTO;
 import com.example.frauddetector.service.UserService;
-
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/api")
@@ -18,27 +18,29 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
+    
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(
-            @RequestBody User user
+    public ResponseEntity<UserResponseDTO> createUser(
+            @RequestBody UserRequestDTO userDTO
     ) {
 
         return ResponseEntity.ok(
-                userService.createUser(user)
+                userService.createUser(userDTO)
         );
     }
+
+    
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
 
         return ResponseEntity.ok(
                 userService.getAllUsers()
         );
     }
 
-
-    
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(
+    public ResponseEntity<UserResponseDTO> getUserById(
             @PathVariable Long id
     ) {
 
@@ -48,20 +50,18 @@ public class UserController {
     }
 
 
-   
     @PutMapping("/users/{id}")
-    public ResponseEntity<User> updateUser(
+    public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long id,
-            @RequestBody User user
+            @RequestBody UserRequestDTO userDTO
     ) {
 
         return ResponseEntity.ok(
-                userService.updateUser(id, user)
+                userService.updateUser(id, userDTO)
         );
     }
 
-
-    
+ 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long id
@@ -71,5 +71,4 @@ public class UserController {
 
         return ResponseEntity.noContent().build();
     }
-
 }

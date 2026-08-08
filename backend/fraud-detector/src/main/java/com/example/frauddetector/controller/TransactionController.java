@@ -1,13 +1,14 @@
+
 package com.example.frauddetector.controller;
+
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.frauddetector.entity.Transaction;
+import com.example.frauddetector.dto.TransactionRequestDTO;
+import com.example.frauddetector.dto.TransactionResponseDTO;
 import com.example.frauddetector.service.TransactionService;
-
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/api")
@@ -15,28 +16,33 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(
+            TransactionService transactionService
+    ) {
         this.transactionService = transactionService;
     }
 
 
-    
+    // Create Transaction
     @PostMapping("/transactions/{userId}")
-    public ResponseEntity<Transaction> createTransaction(
-            @RequestBody Transaction transaction,
+    public ResponseEntity<TransactionResponseDTO> createTransaction(
+            @RequestBody TransactionRequestDTO transactionDTO,
             @PathVariable Long userId
     ) {
 
         return ResponseEntity.ok(
-                transactionService.createTransaction(transaction, userId)
+                transactionService.createTransaction(
+                        transactionDTO,
+                        userId
+                )
         );
     }
 
 
-    
+
     @GetMapping("/transactions")
-    public ResponseEntity<List<Transaction>> getAllTransactions() {
+    public ResponseEntity<List<TransactionResponseDTO>>
+            getAllTransactions() {
 
         return ResponseEntity.ok(
                 transactionService.getAllTransactions()
@@ -44,40 +50,14 @@ public class TransactionController {
     }
 
 
-    
     @GetMapping("/transactions/{id}")
-    public ResponseEntity<Transaction> getTransactionById(
-            @PathVariable Long id
-    ) {
+    public ResponseEntity<TransactionResponseDTO>
+            getTransactionById(
+                    @PathVariable Long id
+            ) {
 
         return ResponseEntity.ok(
                 transactionService.getTransactionById(id)
         );
     }
-
-
-    
-    @PutMapping("/transactions/{id}")
-    public ResponseEntity<Transaction> updateTransaction(
-            @PathVariable Long id,
-            @RequestBody Transaction transaction
-    ) {
-
-        return ResponseEntity.ok(
-                transactionService.updateTransaction(id, transaction)
-        );
-    }
-
-
-    
-    @DeleteMapping("/transactions/{id}")
-    public ResponseEntity<Void> deleteTransaction(
-            @PathVariable Long id
-    ) {
-
-        transactionService.deleteTransaction(id);
-
-        return ResponseEntity.noContent().build();
-    }
-
 }
