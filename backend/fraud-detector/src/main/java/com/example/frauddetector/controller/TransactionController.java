@@ -23,7 +23,7 @@ public class TransactionController {
     }
 
 
-    // Create Transaction
+    
     @PostMapping("/transactions/{userId}")
     public ResponseEntity<TransactionResponseDTO> createTransaction(
             @RequestBody TransactionRequestDTO transactionDTO,

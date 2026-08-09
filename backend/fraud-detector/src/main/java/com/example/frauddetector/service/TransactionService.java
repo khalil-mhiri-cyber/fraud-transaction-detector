@@ -9,9 +9,11 @@ import com.example.frauddetector.dto.TransactionRequestDTO;
 import com.example.frauddetector.dto.TransactionResponseDTO;
 import com.example.frauddetector.entity.Transaction;
 import com.example.frauddetector.entity.User;
+import com.example.frauddetector.exception.InvalidAmountException;
+import com.example.frauddetector.exception.ResourceNotFoundException;
 import com.example.frauddetector.repository.TransactionRepository;
 import com.example.frauddetector.repository.UserRepository;
-
+import com.example.frauddetector.exception.ResourceNotFoundException;
 @Service
 public class TransactionService {
 
@@ -26,7 +28,7 @@ public class TransactionService {
         this.userRepository = userRepository;
     }
 
-    // Create Transaction
+    
     public TransactionResponseDTO createTransaction(
             TransactionRequestDTO transactionDTO,
             Long userId
@@ -35,14 +37,14 @@ public class TransactionService {
         if (transactionDTO.getAmount()
                 .compareTo(BigDecimal.ZERO) <= 0) {
 
-            throw new IllegalArgumentException(
-                    "Amount must be positive"
-            );
+            throw new InvalidAmountException(
+        "Amount must be positive"
+);
         }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found")
+                        new ResourceNotFoundException("User not found")
                 );
 
         Transaction transaction = new Transaction();
@@ -59,7 +61,7 @@ public class TransactionService {
         return toResponseDTO(transaction);
     }
 
-    // Get All
+    
     public List<TransactionResponseDTO> getAllTransactions() {
 
         return transactionRepository.findAll()
@@ -68,21 +70,19 @@ public class TransactionService {
                 .toList();
     }
 
-    // Get By ID
+    
     public TransactionResponseDTO getTransactionById(Long id) {
 
         Transaction transaction =
                 transactionRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Transaction not found"
-                                )
+                                new ResourceNotFoundException("Transaction not found")
                         );
 
         return toResponseDTO(transaction);
     }
 
-    // Entity → Response DTO
+    
     private TransactionResponseDTO toResponseDTO(
             Transaction transaction
     ) {

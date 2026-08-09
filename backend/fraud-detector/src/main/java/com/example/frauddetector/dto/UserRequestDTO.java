@@ -1,11 +1,19 @@
-
 package com.example.frauddetector.dto;
-
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 public class UserRequestDTO {
 
-    private String name;
-    private String email;
-    private String password;
+    @NotBlank
+private String name;
+
+@NotBlank
+@Email
+private String email;
+
+@NotBlank
+@Size(min = 8)
+private String password;
 
     public UserRequestDTO() {
     }
@@ -34,4 +42,3 @@ public class UserRequestDTO {
         this.password = password;
     }
 }
-

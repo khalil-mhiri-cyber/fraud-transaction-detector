@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import com.example.frauddetector.dto.UserRequestDTO;
 import com.example.frauddetector.dto.UserResponseDTO;
 import com.example.frauddetector.entity.User;
+import com.example.frauddetector.exception.ResourceNotFoundException;
 import com.example.frauddetector.repository.UserRepository;
-
 @Service
 public class UserService {
 
@@ -18,15 +18,9 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    
     public UserResponseDTO createUser(UserRequestDTO userDTO) {
 
-        if (userDTO.getEmail() == null ||
-                userDTO.getEmail().isEmpty()) {
-
-            throw new RuntimeException("Email required");
-        }
-
+        
         User user = new User();
 
         user.setName(userDTO.getName());
@@ -38,7 +32,6 @@ public class UserService {
         return toResponseDTO(user);
     }
 
-    // Get All
     public List<UserResponseDTO> getAllUsers() {
 
         return userRepository.findAll()
@@ -47,27 +40,20 @@ public class UserService {
                 .toList();
     }
 
-    // Get By ID
     public UserResponseDTO getUserById(Long id) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found")
-                );
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         return toResponseDTO(user);
     }
 
-    // Update
     public UserResponseDTO updateUser(
             Long id,
-            UserRequestDTO userDTO
-    ) {
+            UserRequestDTO userDTO) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found")
-                );
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
@@ -78,18 +64,14 @@ public class UserService {
         return toResponseDTO(user);
     }
 
-    // Delete
     public void deleteUser(Long id) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found")
-                );
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         userRepository.delete(user);
     }
 
-    
     private UserResponseDTO toResponseDTO(User user) {
 
         UserResponseDTO response = new UserResponseDTO();
