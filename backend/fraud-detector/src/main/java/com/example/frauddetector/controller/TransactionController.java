@@ -1,4 +1,3 @@
-
 package com.example.frauddetector.controller;
 
 import java.util.List;
@@ -22,8 +21,6 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-
-    
     @PostMapping("/transactions/{userId}")
     public ResponseEntity<TransactionResponseDTO> createTransaction(
             @RequestBody TransactionRequestDTO transactionDTO,
@@ -38,8 +35,6 @@ public class TransactionController {
         );
     }
 
-
-
     @GetMapping("/transactions")
     public ResponseEntity<List<TransactionResponseDTO>>
             getAllTransactions() {
@@ -48,7 +43,6 @@ public class TransactionController {
                 transactionService.getAllTransactions()
         );
     }
-
 
     @GetMapping("/transactions/{id}")
     public ResponseEntity<TransactionResponseDTO>
