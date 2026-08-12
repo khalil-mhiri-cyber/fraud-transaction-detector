@@ -3,10 +3,13 @@ package com.example.frauddetector.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.frauddetector.dto.TransactionRequestDTO;
 import com.example.frauddetector.dto.TransactionResponseDTO;
+import com.example.frauddetector.entity.User;
 import com.example.frauddetector.service.TransactionService;
 
 @RestController
@@ -21,11 +24,19 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @PostMapping("/transactions/{userId}")
+    @PostMapping("/transactions")
     public ResponseEntity<TransactionResponseDTO> createTransaction(
-            @RequestBody TransactionRequestDTO transactionDTO,
-            @PathVariable Long userId
+            @RequestBody TransactionRequestDTO transactionDTO
     ) {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        User user = (User) authentication.getPrincipal();
+
+        Long userId = user.getId();
 
         return ResponseEntity.ok(
                 transactionService.createTransaction(
@@ -52,6 +63,6 @@ public class TransactionController {
 
         return ResponseEntity.ok(
                 transactionService.getTransactionById(id)
-        );
+            );
     }
 }

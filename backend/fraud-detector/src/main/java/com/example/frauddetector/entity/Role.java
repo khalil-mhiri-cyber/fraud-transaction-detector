@@ -1,5 +1,6 @@
 package com.example.frauddetector.entity;
-enum Role{
-    User,
+
+public enum Role {
+    USER,
     ADMIN
 }

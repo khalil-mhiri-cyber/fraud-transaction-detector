@@ -1,2 +1,26 @@
-
+# CSV data files
 *.csv
+
+# Maven build output
+target/
+*.class
+
+# ML model binaries (large files)
+*.joblib
+*.pkl
+*.model
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
