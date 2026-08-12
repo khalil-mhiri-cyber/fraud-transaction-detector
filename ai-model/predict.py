@@ -94,3 +94,4 @@ if __name__ == '__main__':
     print(f"Fraud: {'YES' if result['is_fraud'] else 'NO'}")
     print(f"Probability: {result['fraud_probability']:.2%}")
     print(f"Risk: {result['risk_level']}")
+    
