@@ -137,10 +137,7 @@ public class TransactionService {
                                 )
                         );
 
-        return toResponseDTO(transaction);
-    }
-
-    // Nouvelles méthodes
+    // Nouvelles fonctionnalités
 
     public List<TransactionResponseDTO> getTransactionsByUserId(Long userId) {
         return transactionRepository.findByUserId(userId)
@@ -184,6 +181,7 @@ public class TransactionService {
                 .toList();
     }
 
+    // Stats
     public TransactionStatsDTO getStatistics() {
         Long totalTransactions = transactionRepository.count();
         Double totalAmount = transactionRepository.getTotalAmount();

@@ -42,14 +42,8 @@ public class SecurityConfig {
             )
 
             .authorizeHttpRequests(auth -> auth
-
-                // Authentication endpoints
-                .requestMatchers(
-                    "/auth/login",
-                    "/auth/register"
-                ).permitAll()
-
-                // Everything else requires JWT
+                .requestMatchers("/auth/login", "/auth/register").permitAll()
+                .requestMatchers("/api/**").permitAll()  // for dev/testing
                 .anyRequest().authenticated()
             )
 

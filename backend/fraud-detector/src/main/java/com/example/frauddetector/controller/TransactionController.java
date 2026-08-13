@@ -66,12 +66,10 @@ public class TransactionController {
                     @PathVariable Long id
             ) {
 
-        return ResponseEntity.ok(
-                transactionService.getTransactionById(id)
             );
     }
 
-    // Statistiques globales
+    // Stats endpoints
     @GetMapping("/transactions/stats")
     public ResponseEntity<TransactionStatsDTO> getStatistics() {
         return ResponseEntity.ok(
@@ -79,7 +77,6 @@ public class TransactionController {
         );
     }
 
-    // Statistiques par utilisateur
     @GetMapping("/transactions/stats/users")
     public ResponseEntity<List<UserStatsDTO>> getUserStatistics() {
         return ResponseEntity.ok(
@@ -87,7 +84,7 @@ public class TransactionController {
         );
     }
 
-    // Transactions d'un utilisateur spécifique
+    // Get by user
     @GetMapping("/transactions/user/{userId}")
     public ResponseEntity<List<TransactionResponseDTO>> getTransactionsByUser(
             @PathVariable Long userId
@@ -97,7 +94,7 @@ public class TransactionController {
         );
     }
 
-    // Recherche par lieu
+    // Search endpoints
     @GetMapping("/transactions/search/place")
     public ResponseEntity<List<TransactionResponseDTO>> searchByPlace(
             @RequestParam String place
@@ -107,7 +104,6 @@ public class TransactionController {
         );
     }
 
-    // Recherche par device
     @GetMapping("/transactions/search/device")
     public ResponseEntity<List<TransactionResponseDTO>> searchByDevice(
             @RequestParam String device
@@ -117,7 +113,7 @@ public class TransactionController {
         );
     }
 
-    // Filtrer par montant
+    // Filter endpoints
     @GetMapping("/transactions/filter/amount")
     public ResponseEntity<List<TransactionResponseDTO>> filterByAmount(
             @RequestParam Double min,
@@ -128,7 +124,6 @@ public class TransactionController {
         );
     }
 
-    // Transactions à montant élevé
     @GetMapping("/transactions/high-value")
     public ResponseEntity<List<TransactionResponseDTO>> getHighValueTransactions(
             @RequestParam(defaultValue = "1000.0") Double threshold
@@ -138,7 +133,6 @@ public class TransactionController {
         );
     }
 
-    // Filtrer par date
     @GetMapping("/transactions/filter/date")
     public ResponseEntity<List<TransactionResponseDTO>> filterByDate(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
