@@ -1,7 +1,10 @@
 package com.example.frauddetector.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.frauddetector.dto.TransactionRequestDTO;
 import com.example.frauddetector.dto.TransactionResponseDTO;
+import com.example.frauddetector.dto.TransactionStatsDTO;
+import com.example.frauddetector.dto.UserStatsDTO;
 import com.example.frauddetector.entity.User;
 import com.example.frauddetector.service.TransactionService;
 
@@ -26,7 +31,7 @@ public class TransactionController {
 
     @PostMapping("/transactions")
     public ResponseEntity<TransactionResponseDTO> createTransaction(
-            @RequestBody TransactionRequestDTO transactionDTO
+            @Valid @RequestBody TransactionRequestDTO transactionDTO
     ) {
 
         Authentication authentication =
@@ -64,5 +69,83 @@ public class TransactionController {
         return ResponseEntity.ok(
                 transactionService.getTransactionById(id)
             );
+    }
+
+    // Statistiques globales
+    @GetMapping("/transactions/stats")
+    public ResponseEntity<TransactionStatsDTO> getStatistics() {
+        return ResponseEntity.ok(
+                transactionService.getStatistics()
+        );
+    }
+
+    // Statistiques par utilisateur
+    @GetMapping("/transactions/stats/users")
+    public ResponseEntity<List<UserStatsDTO>> getUserStatistics() {
+        return ResponseEntity.ok(
+                transactionService.getUserStatistics()
+        );
+    }
+
+    // Transactions d'un utilisateur spécifique
+    @GetMapping("/transactions/user/{userId}")
+    public ResponseEntity<List<TransactionResponseDTO>> getTransactionsByUser(
+            @PathVariable Long userId
+    ) {
+        return ResponseEntity.ok(
+                transactionService.getTransactionsByUserId(userId)
+        );
+    }
+
+    // Recherche par lieu
+    @GetMapping("/transactions/search/place")
+    public ResponseEntity<List<TransactionResponseDTO>> searchByPlace(
+            @RequestParam String place
+    ) {
+        return ResponseEntity.ok(
+                transactionService.searchByPlace(place)
+        );
+    }
+
+    // Recherche par device
+    @GetMapping("/transactions/search/device")
+    public ResponseEntity<List<TransactionResponseDTO>> searchByDevice(
+            @RequestParam String device
+    ) {
+        return ResponseEntity.ok(
+                transactionService.searchByDevice(device)
+        );
+    }
+
+    // Filtrer par montant
+    @GetMapping("/transactions/filter/amount")
+    public ResponseEntity<List<TransactionResponseDTO>> filterByAmount(
+            @RequestParam Double min,
+            @RequestParam Double max
+    ) {
+        return ResponseEntity.ok(
+                transactionService.getTransactionsByAmountRange(min, max)
+        );
+    }
+
+    // Transactions à montant élevé
+    @GetMapping("/transactions/high-value")
+    public ResponseEntity<List<TransactionResponseDTO>> getHighValueTransactions(
+            @RequestParam(defaultValue = "1000.0") Double threshold
+    ) {
+        return ResponseEntity.ok(
+                transactionService.getHighValueTransactions(threshold)
+        );
+    }
+
+    // Filtrer par date
+    @GetMapping("/transactions/filter/date")
+    public ResponseEntity<List<TransactionResponseDTO>> filterByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate
+    ) {
+        return ResponseEntity.ok(
+                transactionService.getTransactionsByDateRange(startDate, endDate)
+        );
     }
 }

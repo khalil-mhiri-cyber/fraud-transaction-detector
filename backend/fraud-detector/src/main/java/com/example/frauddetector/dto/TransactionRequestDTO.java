@@ -4,26 +4,50 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.*;
 
 public class TransactionRequestDTO {
 
+    @NotBlank(message = "Type is required")
+    @Pattern(regexp = "PAYMENT|TRANSFER|CASH_OUT|DEBIT|CASH_IN", 
+             message = "Type must be one of: PAYMENT, TRANSFER, CASH_OUT, DEBIT, CASH_IN")
     private String type;
+
+    @NotNull(message = "Amount is required")
+    @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
+    @DecimalMax(value = "1000000.00", message = "Amount must be less than 1,000,000")
     private BigDecimal amount;
 
+    @NotNull(message = "Old balance origin is required")
+    @DecimalMin(value = "0.0", message = "Old balance origin must be non-negative")
     @JsonProperty("oldbalanceOrg")
     private BigDecimal oldBalanceOrig;
 
+    @NotNull(message = "New balance origin is required")
+    @DecimalMin(value = "0.0", message = "New balance origin must be non-negative")
     @JsonProperty("newbalanceOrig")
     private BigDecimal newBalanceOrig;
 
+    @NotNull(message = "Old balance destination is required")
+    @DecimalMin(value = "0.0", message = "Old balance destination must be non-negative")
     @JsonProperty("oldbalanceDest")
     private BigDecimal oldBalanceDest;
 
+    @NotNull(message = "New balance destination is required")
+    @DecimalMin(value = "0.0", message = "New balance destination must be non-negative")
     @JsonProperty("newbalanceDest")
     private BigDecimal newBalanceDest;
 
+    @NotBlank(message = "Place is required")
+    @Size(min = 2, max = 100, message = "Place must be between 2 and 100 characters")
     private String place;
+
+    @NotBlank(message = "Device is required")
+    @Size(min = 2, max = 100, message = "Device must be between 2 and 100 characters")
     private String device;
+
+    @NotNull(message = "Time is required")
+    @PastOrPresent(message = "Time cannot be in the future")
     private LocalDateTime time;
 
     public TransactionRequestDTO() {

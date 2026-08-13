@@ -1,6 +1,8 @@
 package com.example.frauddetector.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +10,8 @@ import org.springframework.stereotype.Service;
 import com.example.frauddetector.dto.FraudPredictionResponseDTO;
 import com.example.frauddetector.dto.TransactionRequestDTO;
 import com.example.frauddetector.dto.TransactionResponseDTO;
+import com.example.frauddetector.dto.TransactionStatsDTO;
+import com.example.frauddetector.dto.UserStatsDTO;
 import com.example.frauddetector.entity.Transaction;
 import com.example.frauddetector.entity.User;
 import com.example.frauddetector.exception.InvalidAmountException;
@@ -134,6 +138,86 @@ public class TransactionService {
                         );
 
         return toResponseDTO(transaction);
+    }
+
+    // Nouvelles méthodes
+
+    public List<TransactionResponseDTO> getTransactionsByUserId(Long userId) {
+        return transactionRepository.findByUserId(userId)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    public List<TransactionResponseDTO> searchByPlace(String place) {
+        return transactionRepository.findByPlaceContainingIgnoreCase(place)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    public List<TransactionResponseDTO> searchByDevice(String device) {
+        return transactionRepository.findByDeviceContainingIgnoreCase(device)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    public List<TransactionResponseDTO> getTransactionsByAmountRange(Double minAmount, Double maxAmount) {
+        return transactionRepository.findByAmountBetween(minAmount, maxAmount)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    public List<TransactionResponseDTO> getTransactionsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return transactionRepository.findByTimeBetween(startDate, endDate)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    public List<TransactionResponseDTO> getHighValueTransactions(Double threshold) {
+        return transactionRepository.findByAmountGreaterThan(threshold)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+    }
+
+    public TransactionStatsDTO getStatistics() {
+        Long totalTransactions = transactionRepository.count();
+        Double totalAmount = transactionRepository.getTotalAmount();
+        Double avgAmount = transactionRepository.getAverageAmount();
+        Double maxAmount = transactionRepository.getMaxAmount();
+        Double minAmount = transactionRepository.getMinAmount();
+        Long uniqueUsers = transactionRepository.getUniqueUsersCount();
+
+        return new TransactionStatsDTO(
+                totalTransactions,
+                totalAmount != null ? totalAmount : 0.0,
+                avgAmount != null ? avgAmount : 0.0,
+                maxAmount != null ? maxAmount : 0.0,
+                minAmount != null ? minAmount : 0.0,
+                uniqueUsers != null ? uniqueUsers : 0L
+        );
+    }
+
+    public List<UserStatsDTO> getUserStatistics() {
+        List<Object[]> results = transactionRepository.getUserStats();
+        List<UserStatsDTO> stats = new ArrayList<>();
+
+        for (Object[] row : results) {
+            UserStatsDTO stat = new UserStatsDTO();
+            stat.setUserId((Long) row[0]);
+            stat.setUserName((String) row[1]);
+            stat.setUserEmail((String) row[2]);
+            stat.setTransactionCount((Long) row[3]);
+            stat.setTotalSpent((Double) row[4]);
+            stat.setAverageTransaction((Double) row[5]);
+            stats.add(stat);
+        }
+
+        return stats;
     }
 
     private TransactionResponseDTO toResponseDTO(
