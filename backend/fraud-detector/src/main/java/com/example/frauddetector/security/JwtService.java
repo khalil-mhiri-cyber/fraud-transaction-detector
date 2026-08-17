@@ -14,7 +14,7 @@ public class JwtService {
     private final String secret =
             "my-super-secret-key-for-fraud-detector-application-123456";
 
-    private final long expiration = 1000 * 60 * 60; // 1 hour
+    private final long expiration = 1000 * 60 * 60 * 24; // 24 hours
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(
