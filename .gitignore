@@ -24,3 +24,8 @@ __pycache__/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Zip files and extracted design folders
+*.zip
+design-temp/
+Fraud-Detection-Dashboard/
