@@ -18,7 +18,7 @@ export const deleteUser = (id) => api.delete(`/users/${id}`);
 
 // Transactions
 export const getTransactions = async () => {
-  const response = await api.get('/transactions');
+  const response = await api.get('/simple-transactions');
   return response.data;
 };
 export const getTransactionById = (id) => api.get(`/transactions/${id}`);

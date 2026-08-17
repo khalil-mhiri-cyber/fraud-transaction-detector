@@ -65,8 +65,9 @@ public class TransactionController {
             getTransactionById(
                     @PathVariable Long id
             ) {
-
-            );
+        return ResponseEntity.ok(
+                transactionService.getTransactionById(id)
+        );
     }
 
     // Stats endpoints

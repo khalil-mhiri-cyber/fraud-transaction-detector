@@ -128,7 +128,6 @@ public class TransactionService {
     }
 
     public TransactionResponseDTO getTransactionById(Long id) {
-
         Transaction transaction =
                 transactionRepository.findById(id)
                         .orElseThrow(() ->
@@ -136,6 +135,8 @@ public class TransactionService {
                                         "Transaction not found"
                                 )
                         );
+        return toResponseDTO(transaction);
+    }
 
     // Nouvelles fonctionnalités
 

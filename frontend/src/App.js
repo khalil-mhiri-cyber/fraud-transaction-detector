@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/Dashboard';
+import Transactions from './pages/Transactions';
 import './App.css';
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="transactions" element={<div style={{ color: '#94a3b8' }}>Transactions - Coming soon</div>} />
+          <Route path="transactions" element={<Transactions />} />
           <Route path="prediction" element={<div style={{ color: '#94a3b8' }}>Prediction - Coming soon</div>} />
           <Route path="analytics" element={<div style={{ color: '#94a3b8' }}>Analytics - Coming soon</div>} />
           <Route path="alerts" element={<div style={{ color: '#94a3b8' }}>Alerts - Coming soon</div>} />

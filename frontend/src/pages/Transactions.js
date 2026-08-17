@@ -1,0 +1,275 @@
+import { useState, useEffect } from 'react';
+import { getTransactions } from '../services/api';
+import { TRANSACTIONS } from '../data/mockData';
+
+function Transactions() {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'desc' });
+
+  async function fetchTransactions() {
+    try {
+      const data = await getTransactions();
+      setTransactions(data.map(t => ({
+        id: t.id,
+        amount: Math.round(t.amount),
+        type: 'Transaction',
+        device: t.device,
+        location: t.place,
+        timestamp: new Date(t.time).toLocaleString('en-GB', { 
+          day: '2-digit', 
+          month: 'short', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        status: 'normal',  // We'll add fraud detection later
+        riskScore: 20 + Math.floor(Math.random() * 40)
+      })));
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      setTransactions(TRANSACTIONS.map((t, i) => ({
+        id: i + 1,
+        amount: t.amount,
+        type: t.merchant,
+        device: 'Web',
+        location: t.location,
+        timestamp: `17 Aug 2026, ${t.time}`,
+        status: t.status,
+        riskScore: t.riskScore
+      })));
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchTransactions();
+    // Refresh transactions every 5 seconds
+    const interval = setInterval(fetchTransactions, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  const filteredTransactions = transactions
+    .filter(t => {
+      const matchesSearch = 
+        t.id.toString().includes(searchTerm) ||
+        t.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        t.location.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || t.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      const aVal = a[sortConfig.key];
+      const bVal = b[sortConfig.key];
+      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+  const getRiskColor = (score) => {
+    if (score >= 80) return '#ef4444';
+    if (score >= 60) return '#f59e0b';
+    return '#10b981';
+  };
+
+  const inputStyle = {
+    padding: '8px 12px',
+    background: 'rgba(8,13,26,0.6)',
+    border: '1px solid rgba(148,163,184,0.12)',
+    borderRadius: 4,
+    fontFamily: 'Instrument Sans',
+    fontSize: 13,
+    color: '#e2e8f0',
+    outline: 'none',
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
+        <div style={{ fontFamily: 'Instrument Sans', fontSize: 14, color: '#64748b' }}>Loading transactions...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* Header */}
+      <div>
+        <h1 style={{ fontFamily: 'Instrument Sans', fontSize: 22, fontWeight: 700, color: '#e2e8f0', margin: 0, letterSpacing: '-0.02em' }}>
+          Transactions
+        </h1>
+        <p style={{ fontFamily: 'Instrument Sans', fontSize: 13, color: '#64748b', margin: '4px 0 0' }}>
+          {filteredTransactions.length} transaction(s) found
+        </p>
+      </div>
+
+      {/* Filters */}
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center', background: '#0d1528', padding: '16px 20px', borderRadius: 4, border: '1px solid rgba(148,163,184,0.08)' }}>
+        <div style={{ flex: 1 }}>
+          <input
+            type="text"
+            placeholder="Search by ID, type, or location..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ ...inputStyle, width: '100%' }}
+          />
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {['all', 'normal', 'fraud'].map(status => (
+            <button
+              key={status}
+              onClick={() => setStatusFilter(status)}
+              style={{
+                padding: '8px 16px',
+                border: statusFilter === status ? '1px solid #f59e0b' : '1px solid rgba(148,163,184,0.12)',
+                borderRadius: 4,
+                background: statusFilter === status ? 'rgba(245,158,11,0.1)' : 'rgba(148,163,184,0.03)',
+                color: statusFilter === status ? '#f59e0b' : '#94a3b8',
+                fontFamily: 'Instrument Sans',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: 'pointer',
+                textTransform: 'capitalize',
+                transition: 'all 0.15s'
+              }}
+            >
+              {status}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Table */}
+      <div style={{ background: '#0d1528', border: '1px solid rgba(148,163,184,0.08)', borderRadius: 4, overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: 'rgba(148,163,184,0.03)', borderBottom: '1px solid rgba(148,163,184,0.08)' }}>
+                {[
+                  { key: 'id', label: 'ID' },
+                  { key: 'type', label: 'Type' },
+                  { key: 'amount', label: 'Amount' },
+                  { key: 'device', label: 'Device' },
+                  { key: 'location', label: 'Location' },
+                  { key: 'timestamp', label: 'Date & Time' },
+                  { key: 'status', label: 'Status' },
+                  { key: 'riskScore', label: 'Risk' }
+                ].map(col => (
+                  <th
+                    key={col.key}
+                    onClick={() => handleSort(col.key)}
+                    style={{
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      fontFamily: 'Instrument Sans',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: '#64748b',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      cursor: 'pointer',
+                      userSelect: 'none'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {col.label}
+                      {sortConfig.key === col.key && (
+                        <span style={{ color: '#f59e0b' }}>
+                          {sortConfig.direction === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredTransactions.map((tx, idx) => (
+                <tr
+                  key={tx.id}
+                  style={{
+                    borderBottom: idx < filteredTransactions.length - 1 ? '1px solid rgba(148,163,184,0.05)' : 'none',
+                    transition: 'background 0.15s'
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(148,163,184,0.02)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  <td style={{ padding: '14px 16px', fontFamily: 'JetBrains Mono', fontSize: 12, fontWeight: 600, color: '#94a3b8' }}>
+                    {tx.id}
+                  </td>
+                  <td style={{ padding: '14px 16px', fontFamily: 'Instrument Sans', fontSize: 13, color: '#e2e8f0' }}>
+                    {tx.type}
+                  </td>
+                  <td style={{ padding: '14px 16px', fontFamily: 'JetBrains Mono', fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>
+                    {tx.amount.toLocaleString()} DT
+                  </td>
+                  <td style={{ padding: '14px 16px', fontFamily: 'Instrument Sans', fontSize: 13, color: '#94a3b8' }}>
+                    {tx.device}
+                  </td>
+                  <td style={{ padding: '14px 16px', fontFamily: 'Instrument Sans', fontSize: 13, color: '#94a3b8' }}>
+                    {tx.location}
+                  </td>
+                  <td style={{ padding: '14px 16px', fontFamily: 'JetBrains Mono', fontSize: 11, color: '#64748b' }}>
+                    {tx.timestamp}
+                  </td>
+                  <td style={{ padding: '14px 16px' }}>
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '3px 10px',
+                      borderRadius: 12,
+                      fontFamily: 'Instrument Sans',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      background: tx.status === 'fraud' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
+                      color: tx.status === 'fraud' ? '#ef4444' : '#10b981',
+                      border: `1px solid ${tx.status === 'fraud' ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)'}`
+                    }}>
+                      {tx.status}
+                    </span>
+                  </td>
+                  <td style={{ padding: '14px 16px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'rgba(148,163,184,0.1)', overflow: 'hidden', minWidth: 60 }}>
+                        <div style={{
+                          width: `${tx.riskScore}%`,
+                          height: '100%',
+                          background: getRiskColor(tx.riskScore),
+                          borderRadius: 3
+                        }} />
+                      </div>
+                      <span style={{ fontFamily: 'JetBrains Mono', fontSize: 12, fontWeight: 700, color: getRiskColor(tx.riskScore), minWidth: 30 }}>
+                        {tx.riskScore}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {filteredTransactions.length === 0 && (
+          <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+            <div style={{ fontFamily: 'Instrument Sans', fontSize: 14, color: '#64748b' }}>
+              No transactions found matching your criteria
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default Transactions;
