@@ -28,8 +28,21 @@ def predict_fraud(transaction):
     error_dest = (transaction['oldbalanceDest'] + transaction['amount'] - 
                   transaction['newbalanceDest'])
     
+    # Map unknown transaction types to known ones
+    TYPE_MAPPING = {
+        'PAYMENT': 'DEBIT',
+        'CASH_IN': 'CASH_IN' if 'CASH_IN' in encoder.classes_ else 'DEBIT',
+        'TRANSFER': 'TRANSFER',
+        'CASH_OUT': 'CASH_OUT',
+        'DEBIT': 'DEBIT',
+    }
+    # Safe fallback: if type not in encoder classes, use first available
+    tx_type = TYPE_MAPPING.get(transaction['type'], 'TRANSFER')
+    if tx_type not in encoder.classes_:
+        tx_type = encoder.classes_[0]
+    
     # Encode type
-    type_encoded = encoder.transform([transaction['type']])[0]
+    type_encoded = encoder.transform([tx_type])[0]
     
     # Create feature vector
     features = np.array([[

@@ -47,7 +47,6 @@ public class TransactionRequestDTO {
     private String device;
 
     @NotNull(message = "Time is required")
-    @PastOrPresent(message = "Time cannot be in the future")
     private LocalDateTime time;
 
     public TransactionRequestDTO() {

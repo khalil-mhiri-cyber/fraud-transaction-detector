@@ -1,0 +1,10 @@
+{
+  "description": "Monitor and analyze financial transactions with AI-driven fraud detection tools, enhancing security and minimizing risk for banking and fintech professionals.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

@@ -25,7 +25,12 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Zip files and extracted design folders
+# Frontend dependencies
+frontend/node_modules/
+frontend/dist/
+
+# Design preview
+design-preview/
+
+# Large zip files
 *.zip
-design-temp/
-Fraud-Detection-Dashboard/

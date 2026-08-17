@@ -1,33 +1,16 @@
-# Fraud Transaction Detector
+# React + Vite
 
-A comprehensive fraud detection system built with Spring Boot backend, machine learning service, and modern frontend.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Project Structure
+Currently, two official plugins are available:
 
-```
-.
-├── backend/          # Spring Boot application
-├── frontend/         # Frontend application
-├── ml-service/       # Machine learning service
-└── docs/            # Documentation
-```
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Backend Setup
+## React Compiler
 
-### Prerequisites
-- Java 17+
-- PostgreSQL
-- Maven
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-### Configuration
-1. Copy `application.properties.template` to `application.properties`
-2. Update database credentials in `application.properties`
+## Expanding the ESLint configuration
 
-### Running the Backend
-```bash
-cd backend/fraud-detector
-./mvnw spring-boot:run
-```
-
-## License
-MIT
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

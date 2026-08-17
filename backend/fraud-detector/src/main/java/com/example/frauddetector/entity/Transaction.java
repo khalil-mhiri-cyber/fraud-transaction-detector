@@ -54,12 +54,17 @@ public class Transaction {
     @Column(nullable = false)
     private String riskLevel;
 
+    // Admin override: null=no action, APPROVED=admin approved, BLOCKED=admin blocked
+    @Column
+    private String adminStatus;
+
     public Transaction() {
     }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+
+    public String getAdminStatus() { return adminStatus; }
+    public void setAdminStatus(String adminStatus) { this.adminStatus = adminStatus; }
 
     public String getType() {
         return type;

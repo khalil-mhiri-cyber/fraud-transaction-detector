@@ -21,6 +21,7 @@ public class TransactionResponseDTO {
     private boolean isFraud;
     private BigDecimal fraudProbability;
     private String riskLevel;
+    private String adminStatus;
 
     public TransactionResponseDTO() {
     }
@@ -135,5 +136,13 @@ public class TransactionResponseDTO {
 
     public void setRiskLevel(String riskLevel) {
         this.riskLevel = riskLevel;
+    }
+
+    public String getAdminStatus() {
+        return adminStatus;
+    }
+
+    public void setAdminStatus(String adminStatus) {
+        this.adminStatus = adminStatus;
     }
 }

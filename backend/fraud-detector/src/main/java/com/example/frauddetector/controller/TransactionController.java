@@ -15,6 +15,8 @@ import com.example.frauddetector.dto.TransactionResponseDTO;
 import com.example.frauddetector.dto.TransactionStatsDTO;
 import com.example.frauddetector.dto.UserStatsDTO;
 import com.example.frauddetector.entity.User;
+import com.example.frauddetector.exception.ResourceNotFoundException;
+import com.example.frauddetector.repository.UserRepository;
 import com.example.frauddetector.service.TransactionService;
 
 @RestController
@@ -22,32 +24,34 @@ import com.example.frauddetector.service.TransactionService;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final UserRepository userRepository;
 
     public TransactionController(
-            TransactionService transactionService
+            TransactionService transactionService,
+            UserRepository userRepository
     ) {
         this.transactionService = transactionService;
+        this.userRepository = userRepository;
+    }
+
+    private Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Object principal = auth.getPrincipal();
+        if (principal instanceof User user) {
+            return user.getId();
+        }
+        String email = principal.toString();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"))
+                .getId();
     }
 
     @PostMapping("/transactions")
     public ResponseEntity<TransactionResponseDTO> createTransaction(
             @Valid @RequestBody TransactionRequestDTO transactionDTO
     ) {
-
-        Authentication authentication =
-                SecurityContextHolder
-                        .getContext()
-                        .getAuthentication();
-
-        User user = (User) authentication.getPrincipal();
-
-        Long userId = user.getId();
-
         return ResponseEntity.ok(
-                transactionService.createTransaction(
-                        transactionDTO,
-                        userId
-                )
+                transactionService.createTransaction(transactionDTO, getCurrentUserId())
         );
     }
 
