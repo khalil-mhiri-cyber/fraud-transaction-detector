@@ -17,14 +17,27 @@ export const updateUser = (id, userData) => api.put(`/users/${id}`, userData);
 export const deleteUser = (id) => api.delete(`/users/${id}`);
 
 // Transactions
-export const getTransactions = () => api.get('/transactions');
+export const getTransactions = async () => {
+  const response = await api.get('/transactions');
+  return response.data;
+};
 export const getTransactionById = (id) => api.get(`/transactions/${id}`);
 export const createTransaction = (transactionData) => api.post('/transactions', transactionData);
 export const getTransactionsByUser = (userId) => api.get(`/transactions/user/${userId}`);
 
 // Stats
-export const getGlobalStats = () => api.get('/transactions/stats');
-export const getUserStats = () => api.get('/transactions/stats/users');
+export const getTransactionStats = async () => {
+  const response = await api.get('/transactions/stats');
+  return response.data;
+};
+export const getGlobalStats = async () => {
+  const response = await api.get('/transactions/stats');
+  return response.data;
+};
+export const getUserStats = async () => {
+  const response = await api.get('/transactions/stats/users');
+  return response.data;
+};
 
 // Search & Filter
 export const searchByPlace = (place) => api.get('/transactions/search/place', { params: { place } });

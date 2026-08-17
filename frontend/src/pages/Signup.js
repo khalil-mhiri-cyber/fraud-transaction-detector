@@ -33,7 +33,7 @@ function Signup() {
 
     setLoading(true);
     setTimeout(() => {
-      localStorage.setItem('sentinel_auth', role);
+      localStorage.setItem('sentinel_auth', JSON.stringify({ email, role }));
       navigate(role === 'admin' ? '/admin/dashboard' : '/user/dashboard');
     }, 900);
   }
@@ -116,7 +116,7 @@ function Signup() {
               onBlur={e => (e.target.style.borderColor = 'rgba(148,163,184,0.12)')}
             />
           </div>
-
+  
           <div>
             <label style={{ fontFamily: 'Instrument Sans', fontSize: 12, fontWeight: 600, color: '#94a3b8', letterSpacing: '0.04em', display: 'block', marginBottom: 6 }}>Email address</label>
             <input

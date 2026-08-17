@@ -19,7 +19,7 @@ function Login() {
     }
     setLoading(true);
     setTimeout(() => {
-      localStorage.setItem('sentinel_auth', role);
+      localStorage.setItem('sentinel_auth', JSON.stringify({ email, role }));
       navigate(role === 'admin' ? '/admin/dashboard' : '/user/dashboard');
     }, 900);
   }

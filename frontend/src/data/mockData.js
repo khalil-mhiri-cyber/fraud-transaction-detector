@@ -2,7 +2,7 @@
 export const TRANSACTIONS = [
   {
     id: 'TX-9247',
-    amount: 8500,
+    amount: 26800,
     merchant: 'Global Electronics',
     location: 'Singapore',
     time: '14:32',
@@ -11,7 +11,7 @@ export const TRANSACTIONS = [
   },
   {
     id: 'TX-9245',
-    amount: 12300,
+    amount: 38750,
     merchant: 'Luxury Watches',
     location: 'Dubai',
     time: '13:15',
@@ -20,7 +20,7 @@ export const TRANSACTIONS = [
   },
   {
     id: 'TX-9243',
-    amount: 4200,
+    amount: 13250,
     merchant: 'Fashion Store',
     location: 'London',
     time: '12:48',
@@ -29,7 +29,7 @@ export const TRANSACTIONS = [
   },
   {
     id: 'TX-9240',
-    amount: 15600,
+    amount: 49100,
     merchant: 'Tech Gadgets',
     location: 'Tokyo',
     time: '11:22',
@@ -38,7 +38,7 @@ export const TRANSACTIONS = [
   },
   {
     id: 'TX-9238',
-    amount: 6700,
+    amount: 21100,
     merchant: 'Online Marketplace',
     location: 'Berlin',
     time: '10:05',
