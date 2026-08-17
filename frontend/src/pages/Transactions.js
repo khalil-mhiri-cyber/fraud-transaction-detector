@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { getTransactions } from '../services/api';
-import { TRANSACTIONS } from '../data/mockData';
 
 function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -8,10 +7,13 @@ function Transactions() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'desc' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
 
   async function fetchTransactions() {
     try {
       const data = await getTransactions();
+      console.log(`✓ Loaded ${data.length} transactions from backend API`);
       setTransactions(data.map(t => ({
         id: t.id,
         amount: Math.round(t.amount),
@@ -25,22 +27,15 @@ function Transactions() {
           hour: '2-digit',
           minute: '2-digit'
         }),
-        status: 'normal',  // We'll add fraud detection later
+        status: 'normal',
         riskScore: 20 + Math.floor(Math.random() * 40)
       })));
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching transactions:', error);
-      setTransactions(TRANSACTIONS.map((t, i) => ({
-        id: i + 1,
-        amount: t.amount,
-        type: t.merchant,
-        device: 'Web',
-        location: t.location,
-        timestamp: `17 Aug 2026, ${t.time}`,
-        status: t.status,
-        riskScore: t.riskScore
-      })));
+      console.error('✗ Error fetching transactions from backend:', error);
+      console.error('Error details:', error.message);
+      // Show error instead of fallback to mock data
+      setTransactions([]);
       setLoading(false);
     }
   }
@@ -76,6 +71,17 @@ function Transactions() {
       return 0;
     });
 
+  // Pagination
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
+
   const getRiskColor = (score) => {
     if (score >= 80) return '#ef4444';
     if (score >= 60) return '#f59e0b';
@@ -104,13 +110,35 @@ function Transactions() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       {/* Header */}
-      <div>
-        <h1 style={{ fontFamily: 'Instrument Sans', fontSize: 22, fontWeight: 700, color: '#e2e8f0', margin: 0, letterSpacing: '-0.02em' }}>
-          Transactions
-        </h1>
-        <p style={{ fontFamily: 'Instrument Sans', fontSize: 13, color: '#64748b', margin: '4px 0 0' }}>
-          {filteredTransactions.length} transaction(s) found
-        </p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ fontFamily: 'Instrument Sans', fontSize: 22, fontWeight: 700, color: '#e2e8f0', margin: 0, letterSpacing: '-0.02em' }}>
+            Transactions
+          </h1>
+          <p style={{ fontFamily: 'Instrument Sans', fontSize: 13, color: '#64748b', margin: '4px 0 0' }}>
+            {filteredTransactions.length} transaction(s) found • Page {currentPage} of {totalPages}
+          </p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontFamily: 'Instrument Sans', fontSize: 12, color: '#64748b' }}>Show:</span>
+          <select
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            style={{
+              ...inputStyle,
+              cursor: 'pointer',
+              paddingRight: 30
+            }}
+          >
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+            <option value={250}>250</option>
+          </select>
+        </div>
       </div>
 
       {/* Filters */}
@@ -194,11 +222,11 @@ function Transactions() {
               </tr>
             </thead>
             <tbody>
-              {filteredTransactions.map((tx, idx) => (
+              {paginatedTransactions.map((tx, idx) => (
                 <tr
                   key={tx.id}
                   style={{
-                    borderBottom: idx < filteredTransactions.length - 1 ? '1px solid rgba(148,163,184,0.05)' : 'none',
+                    borderBottom: idx < paginatedTransactions.length - 1 ? '1px solid rgba(148,163,184,0.05)' : 'none',
                     transition: 'background 0.15s'
                   }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'rgba(148,163,184,0.02)')}
@@ -268,6 +296,138 @@ function Transactions() {
           </div>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          padding: '16px 20px',
+          background: '#0d1528',
+          border: '1px solid rgba(148,163,184,0.08)',
+          borderRadius: 4
+        }}>
+          <div style={{ fontFamily: 'Instrument Sans', fontSize: 13, color: '#64748b' }}>
+            Showing {startIndex + 1}-{Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length}
+          </div>
+          
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid rgba(148,163,184,0.12)',
+                borderRadius: 4,
+                background: currentPage === 1 ? 'rgba(148,163,184,0.05)' : 'rgba(148,163,184,0.03)',
+                color: currentPage === 1 ? '#475569' : '#94a3b8',
+                fontFamily: 'Instrument Sans',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.15s'
+              }}
+            >
+              First
+            </button>
+            
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid rgba(148,163,184,0.12)',
+                borderRadius: 4,
+                background: currentPage === 1 ? 'rgba(148,163,184,0.05)' : 'rgba(148,163,184,0.03)',
+                color: currentPage === 1 ? '#475569' : '#94a3b8',
+                fontFamily: 'Instrument Sans',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.15s'
+              }}
+            >
+              Previous
+            </button>
+
+            <div style={{ display: 'flex', gap: 4 }}>
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    style={{
+                      padding: '8px 12px',
+                      border: currentPage === pageNum ? '1px solid #f59e0b' : '1px solid rgba(148,163,184,0.12)',
+                      borderRadius: 4,
+                      background: currentPage === pageNum ? 'rgba(245,158,11,0.1)' : 'rgba(148,163,184,0.03)',
+                      color: currentPage === pageNum ? '#f59e0b' : '#94a3b8',
+                      fontFamily: 'JetBrains Mono',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      minWidth: 36,
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid rgba(148,163,184,0.12)',
+                borderRadius: 4,
+                background: currentPage === totalPages ? 'rgba(148,163,184,0.05)' : 'rgba(148,163,184,0.03)',
+                color: currentPage === totalPages ? '#475569' : '#94a3b8',
+                fontFamily: 'Instrument Sans',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                transition: 'all 0.15s'
+              }}
+            >
+              Next
+            </button>
+
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid rgba(148,163,184,0.12)',
+                borderRadius: 4,
+                background: currentPage === totalPages ? 'rgba(148,163,184,0.05)' : 'rgba(148,163,184,0.03)',
+                color: currentPage === totalPages ? '#475569' : '#94a3b8',
+                fontFamily: 'Instrument Sans',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                transition: 'all 0.15s'
+              }}
+            >
+              Last
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

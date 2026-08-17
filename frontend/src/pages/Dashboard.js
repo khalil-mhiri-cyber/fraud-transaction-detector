@@ -46,7 +46,6 @@ function Dashboard() {
   const [transactions, setTransactions] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState(new Date());
   const [currentTime, setCurrentTime] = useState(new Date());
   const [simulatedStats, setSimulatedStats] = useState({
     totalTransactions: 25676,
@@ -62,7 +61,6 @@ function Dashboard() {
       ]);
       setTransactions(txData);
       setStats(statsData);
-      setLastUpdate(new Date());
       setLoading(false);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -75,7 +73,6 @@ function Dashboard() {
         fraudulent: t.status === 'fraud'
       })));
       setStats(null); // Use simulated stats instead
-      setLastUpdate(new Date());
       setLoading(false);
     }
   }
@@ -103,7 +100,6 @@ function Dashboard() {
           totalAmount: prev.totalAmount + (newAmount * newTx)
         };
       });
-      setLastUpdate(new Date());
     }, 5000); // Update every 5 seconds
 
     return () => clearInterval(simulateInterval);
