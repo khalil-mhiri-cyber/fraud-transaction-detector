@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { FRAUD_TREND, TRANSACTIONS } from '../data/mockData';
+import { FRAUD_TREND } from '../data/mockData';
 import { getTransactions, getTransactionStats } from '../services/api';
 
 const TOOLTIP_STYLE = { 
@@ -105,20 +105,32 @@ function Dashboard() {
   }, []);
 
   const suspicious = transactions
-    .filter(t => t.fraud === true || t.fraudulent === true || t.adminStatus === 'BLOCKED')
+    .filter(t => {
+      // Use REAL fraud data from backend
+      const isFraud = t.is_fraud === true || t.isFraud === true || t.fraud === true;
+      const isBlocked = t.admin_status === 'BLOCKED' || t.adminStatus === 'BLOCKED';
+      return isFraud || isBlocked;
+    })
     .slice(0, 5)
-    .map(t => ({
-      id: `TX-${t.id}`,
-      amount: Math.round(Number(t.amount || 0)),
-      merchant: t.place || t.type || 'Transaction',
-      location: t.device || 'Unknown',
-      time: t.time ? new Date(t.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--:--',
-      status: 'fraud',
-      riskScore: Math.round(Number(t.fraudProbability || 0) * 100) || 85,
-    }));
+    .map(t => {
+      const fraudProb = t.fraud_probability || t.fraudProbability || 0;
+      const riskScore = fraudProb > 0 ? Math.round(fraudProb * 100) : 85;
+      
+      return {
+        id: `TX-${t.id}`,
+        amount: Math.round(Number(t.amount || 0)),
+        merchant: t.place || t.type || 'Transaction',
+        location: t.device || 'Unknown',
+        time: t.time ? new Date(t.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--:--',
+        status: 'fraud',
+        riskScore: riskScore,
+      };
+    });
 
   const totalTx = stats?.totalTransactions || transactions.length || simulatedStats.totalTransactions;
-  const fraudCount = stats?.fraudulentCount || transactions.filter(t => t.fraud).length || simulatedStats.fraudulentCount;
+  const fraudCount = stats?.fraudulentCount || transactions.filter(t => 
+    t.is_fraud === true || t.isFraud === true || t.fraud === true
+  ).length || simulatedStats.fraudulentCount;
   const totalAmount = stats?.totalAmount || transactions.reduce((s, t) => s + Number(t.amount || 0), 0) || simulatedStats.totalAmount;
   const fraudRate = totalTx > 0 ? ((fraudCount / totalTx) * 100).toFixed(2) : '0.00';
 
@@ -141,12 +153,6 @@ function Dashboard() {
           <p style={{ fontFamily: 'Instrument Sans', fontSize: 13, color: '#64748b', margin: '4px 0 0' }}>
             Real-time fraud monitoring — Aug 17, 2026
           </p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 4 }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', display: 'block', boxShadow: '0 0 6px #10b981' }} />
-          <span style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: '#10b981', fontWeight: 600 }}>
-            LIVE · {currentTime.toLocaleTimeString()}
-          </span>
         </div>
       </div>
 

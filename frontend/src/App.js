@@ -69,16 +69,4 @@ function App() {
   );
 }
 
-function ComingSoon({ title }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontFamily: 'JetBrains Mono', fontSize: 32, color: '#1e2d45', marginBottom: 12 }}>⚡</div>
-        <div style={{ fontFamily: 'Instrument Sans', fontSize: 16, fontWeight: 600, color: '#e2e8f0', marginBottom: 6 }}>{title}</div>
-        <div style={{ fontFamily: 'Instrument Sans', fontSize: 13, color: '#64748b' }}>Coming soon</div>
-      </div>
-    </div>
-  );
-}
-
 export default App;

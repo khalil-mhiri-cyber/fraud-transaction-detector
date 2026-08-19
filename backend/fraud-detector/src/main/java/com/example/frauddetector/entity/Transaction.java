@@ -45,17 +45,17 @@ public class Transaction {
     private User user;
 
     // ML prediction result
-    @Column(nullable = false)
+    @Column(name = "is_fraud", nullable = false)
     private boolean fraud;
 
-    @Column(nullable = false)
+    @Column(name = "fraud_probability", nullable = false)
     private BigDecimal fraudProbability;
 
     @Column(nullable = false)
     private String riskLevel;
 
     // Admin override: null=no action, APPROVED=admin approved, BLOCKED=admin blocked
-    @Column
+    @Column(name = "admin_status")
     private String adminStatus;
 
     public Transaction() {

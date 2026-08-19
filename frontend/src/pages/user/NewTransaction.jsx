@@ -6,7 +6,7 @@ const INIT = {
   recipientName: '',
   recipientAccount: '',
   amount: '',
-  currency: 'USD',
+  currency: 'DT',
   txType: 'TRANSFER',
   device: 'PC',
   description: '',
@@ -143,10 +143,10 @@ export default function NewTransaction() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <div>
-                <label style={labelStyle}>Amount *</label>
+                <label style={labelStyle}>Currency *</label>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <select value={form.currency} onChange={set('currency')} style={{ ...inputStyle, width: 80, flexShrink: 0, appearance: 'none' }}>
-                    {['USD', 'EUR', 'GBP', 'TND', 'SAR'].map(c => <option key={c}>{c}</option>)}
+                  <select value={form.currency} onChange={set('currency')} style={{ ...inputStyle, width: 90, flexShrink: 0, appearance: 'none' }}>
+                    {['DT', 'USD', 'EUR', 'GBP', 'SAR'].map(c => <option key={c}>{c}</option>)}
                   </select>
                   <input type="number" min="0.01" step="0.01" placeholder="0.00" value={form.amount} onChange={set('amount')} style={{ ...inputStyle, flex: 1 }} onFocus={focus} onBlur={blur} required />
                 </div>

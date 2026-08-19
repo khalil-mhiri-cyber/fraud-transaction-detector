@@ -15,25 +15,34 @@ function Transactions() {
     try {
       const data = await getTransactions();
       console.log(`✓ Loaded ${data.length} transactions from backend API`);
-      setTransactions(data.map(t => ({
-        id: t.id,
-        amount: Math.round(Number(t.amount)),
-        type: t.type || 'Transaction',
-        device: t.device,
-        location: t.place,
-        timestamp: new Date(t.time).toLocaleString('en-GB', {
-          day: '2-digit', month: 'short', year: 'numeric',
-          hour: '2-digit', minute: '2-digit'
-        }),
-        status: t.fraud ? 'fraud' : (t.adminStatus === 'BLOCKED' ? 'fraud' : 'normal'),
-        riskScore: Math.round(Number(t.fraudProbability || 0) * 100),
-        adminStatus: t.adminStatus,
-      })));
+      setTransactions(data.map((t) => {
+        // Use REAL fraud data from backend (not simulated)
+        const isFraud = t.is_fraud === true || t.isFraud === true || t.fraud === true;
+        const fraudProb = t.fraud_probability || t.fraudProbability || 0;
+        const riskScore = Math.round(fraudProb * 100);
+        
+        // If no fraud probability but marked as fraud, assign high risk score
+        const finalRiskScore = isFraud && riskScore === 0 ? 85 : riskScore;
+        
+        return {
+          id: t.id,
+          amount: Math.round(Number(t.amount)),
+          type: t.type || 'Transaction',
+          device: t.device,
+          location: t.place,
+          timestamp: new Date(t.time).toLocaleString('en-GB', {
+            day: '2-digit', month: 'short', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          }),
+          status: isFraud ? 'fraud' : 'normal',
+          riskScore: finalRiskScore,
+          adminStatus: t.admin_status || t.adminStatus || (isFraud ? 'PENDING' : null),
+        };
+      }));
       setLoading(false);
     } catch (error) {
       console.error('✗ Error fetching transactions from backend:', error);
       console.error('Error details:', error.message);
-      // Show error instead of fallback to mock data
       setTransactions([]);
       setLoading(false);
     }
@@ -70,11 +79,18 @@ function Transactions() {
         t.id.toString().includes(searchTerm) ||
         t.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (t.location || '').toLowerCase().includes(searchTerm.toLowerCase());
+      
       let matchesStatus = true;
-      if (statusFilter === 'fraud') matchesStatus = t.status === 'fraud';
-      else if (statusFilter === 'normal') matchesStatus = t.status === 'normal' && t.adminStatus;
-      else if (statusFilter === 'pending') matchesStatus = !t.adminStatus;
-      else matchesStatus = true;
+      if (statusFilter === 'normal') {
+        matchesStatus = t.status === 'normal';
+      } else if (statusFilter === 'fraud') {
+        matchesStatus = t.status === 'fraud';
+      } else if (statusFilter === 'pending') {
+        matchesStatus = t.adminStatus === 'PENDING';
+      } else {
+        matchesStatus = true; // 'all'
+      }
+      
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
@@ -298,18 +314,18 @@ function Transactions() {
                     </div>
                   </td>
                   <td style={{ padding: '14px 16px' }}>
-                    {tx.adminStatus ? (
+                    {tx.status === 'normal' ? (
                       <span style={{
                         display: 'inline-block', padding: '3px 10px', borderRadius: 12,
                         fontFamily: 'Instrument Sans', fontSize: 11, fontWeight: 700,
                         textTransform: 'uppercase', letterSpacing: '0.04em',
-                        background: tx.adminStatus === 'APPROVED' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
-                        color: tx.adminStatus === 'APPROVED' ? '#10b981' : '#ef4444',
-                        border: `1px solid ${tx.adminStatus === 'APPROVED' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                        background: 'rgba(16,185,129,0.15)',
+                        color: '#10b981',
+                        border: '1px solid rgba(16,185,129,0.3)',
                       }}>
-                        {tx.adminStatus}
+                        AUTO-APPROVED
                       </span>
-                    ) : (
+                    ) : tx.adminStatus === 'PENDING' ? (
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button
                           onClick={() => handleReview(tx.id, 'APPROVED')}
@@ -328,6 +344,17 @@ function Transactions() {
                           }}
                         >✕ Block</button>
                       </div>
+                    ) : (
+                      <span style={{
+                        display: 'inline-block', padding: '3px 10px', borderRadius: 12,
+                        fontFamily: 'Instrument Sans', fontSize: 11, fontWeight: 700,
+                        textTransform: 'uppercase', letterSpacing: '0.04em',
+                        background: tx.adminStatus === 'APPROVED' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+                        color: tx.adminStatus === 'APPROVED' ? '#10b981' : '#ef4444',
+                        border: `1px solid ${tx.adminStatus === 'APPROVED' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                      }}>
+                        {tx.adminStatus}
+                      </span>
                     )}
                   </td>
                 </tr>

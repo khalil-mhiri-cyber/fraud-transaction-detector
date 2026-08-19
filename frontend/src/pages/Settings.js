@@ -2,8 +2,23 @@ import { useState } from 'react';
 
 export default function Settings() {
   const [saved, setSaved] = useState(false);
-  const [name, setName] = useState('Ahmed Khalid');
-  const [email, setEmail] = useState('ahmed@sentinelai.io');
+  
+  // Get user from localStorage
+  const getAuthUser = () => {
+    try {
+      const auth = JSON.parse(localStorage.getItem('sentinel_auth') || '{}');
+      return {
+        email: auth.email || 'user@example.com',
+        name: auth.email ? auth.email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'User'
+      };
+    } catch {
+      return { email: 'user@example.com', name: 'User' };
+    }
+  };
+  
+  const authUser = getAuthUser();
+  const [name, setName] = useState(authUser.name);
+  const [email, setEmail] = useState(authUser.email);
   const [threshold, setThreshold] = useState('60');
   const [alertEmail, setAlertEmail] = useState(true);
   const [alertSlack, setAlertSlack] = useState(false);
@@ -52,15 +67,17 @@ export default function Settings() {
         <div style={{ background: '#0d1528', border: '1px solid rgba(148,163,184,0.08)', borderRadius: 4, padding: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
             <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #1e2d4a 0%, #f59e0b 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <span style={{ fontFamily: 'Instrument Sans', fontSize: 20, fontWeight: 700, color: '#fff' }}>AK</span>
+              <span style={{ fontFamily: 'Instrument Sans', fontSize: 20, fontWeight: 700, color: '#fff' }}>
+                {name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+              </span>
             </div>
             <div>
               <div style={{ fontFamily: 'Instrument Sans', fontSize: 16, fontWeight: 600, color: '#e2e8f0' }}>{name}</div>
-              <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: '#64748b', marginTop: 2 }}>Senior Fraud Analyst · Admin</div>
+              <div style={{ fontFamily: 'JetBrains Mono', fontSize: 11, color: '#64748b', marginTop: 2 }}>Fraud Analyst · Admin</div>
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-            <div>{`<label style={labelStyle}>Full Name</label>`}<label style={labelStyle}>Full Name</label><input value={name} onChange={e => setName(e.target.value)} style={inputStyle} onFocus={e => (e.target.style.borderColor = 'rgba(245,158,11,0.4)')} onBlur={e => (e.target.style.borderColor = 'rgba(148,163,184,0.1)')} /></div>
+            <div><label style={labelStyle}>Full Name</label><input value={name} onChange={e => setName(e.target.value)} style={inputStyle} onFocus={e => (e.target.style.borderColor = 'rgba(245,158,11,0.4)')} onBlur={e => (e.target.style.borderColor = 'rgba(148,163,184,0.1)')} /></div>
             <div><label style={labelStyle}>Email</label><input value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} onFocus={e => (e.target.style.borderColor = 'rgba(245,158,11,0.4)')} onBlur={e => (e.target.style.borderColor = 'rgba(148,163,184,0.1)')} /></div>
           </div>
           <ToggleRow label="Two-Factor Authentication" desc="Require 2FA for all logins" on={twoFA} setOn={setTwoFA} />

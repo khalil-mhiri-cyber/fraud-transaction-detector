@@ -21,7 +21,7 @@ cursor = conn.cursor()
 
 # Read CSV
 print("Loading CSV data...")
-df = pd.read_csv('ai-model/PS_20174392719_1491204439457_log.csv')
+df = pd.read_csv('../ai-model/PS_20174392719_1491204439457_log.csv')
 print(f"Loaded {len(df)} transactions from CSV\n")
 
 # Get user ID

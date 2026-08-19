@@ -42,10 +42,10 @@ export const deleteUser = (id) => api.delete(`/users/${id}`);
 
 // ── Transactions ──────────────────────────────────────────────
 export const getTransactions = async () => {
-  const res = await api.get('/transactions');
+  const res = await api.get('/simple-transactions');
   return res.data;
 };
-export const getTransactionById = (id) => api.get(`/transactions/${id}`);
+export const getTransactionById = (id) => api.get(`/simple-transactions/${id}`);
 export const createTransaction = (data) => api.post('/transactions', data);
 export const getTransactionsByUser = (userId) => api.get(`/transactions/user/${userId}`);
 

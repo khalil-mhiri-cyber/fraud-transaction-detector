@@ -15,3 +15,15 @@ input, select, textarea { font-family: inherit; outline: none; }
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: #080d1a; }
 ::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.15); border-radius: 3px; }
+
+/* Live indicator pulse animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}

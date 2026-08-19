@@ -49,13 +49,6 @@ function Section({ title, sub, children }) {
   );
 }
 
-function getRiskColor(score) {
-  if (score >= 90) return '#ef4444';
-  if (score >= 75) return '#f97316';
-  if (score >= 51) return '#f59e0b';
-  return '#10b981';
-}
-
 export default function Analytics() {
   const total = RISK_DIST.reduce((s, d) => s + d.count, 0);
   const deviceData = FRAUD_BY_DEVICE.map(d => ({ ...d, rate: ((d.fraud / d.total) * 100).toFixed(1) }));

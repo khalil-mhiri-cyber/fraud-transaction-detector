@@ -62,7 +62,7 @@ export default function UserTransactions() {
         <div>
           <h1 style={{ fontFamily: 'Instrument Sans', fontSize: 22, fontWeight: 700, color: '#e2e8f0', margin: 0, letterSpacing: '-0.02em' }}>My Transactions</h1>
           <p style={{ fontFamily: 'Instrument Sans', fontSize: 13, color: '#64748b', margin: '4px 0 0' }}>
-            {sorted.length} transactions · ${totalSpent.toLocaleString('en-US', { minimumFractionDigits: 2 })} approved total
+            {sorted.length} transactions · {totalSpent.toLocaleString('en-US', { minimumFractionDigits: 2 })} DT approved total
           </p>
         </div>
         <button onClick={() => navigate('/user/new-transaction')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', background: '#38bdf8', border: 'none', borderRadius: 4, fontFamily: 'Instrument Sans', fontSize: 13, fontWeight: 700, color: '#0a0f1e', cursor: 'pointer' }}>
@@ -155,7 +155,7 @@ export default function UserTransactions() {
               {/* Amount */}
               <div style={{ textAlign: 'right', minWidth: 100 }}>
                 <div style={{ fontFamily: 'JetBrains Mono', fontSize: 15, fontWeight: 700, color: status === 'blocked' ? '#ef4444' : '#e2e8f0' }}>
-                  {status === 'blocked' ? '-' : ''}USD {Number(tx.amount).toFixed(2)}
+                  {status === 'blocked' ? '-' : ''}{Number(tx.amount).toFixed(2)} DT
                 </div>
                 <span style={{ fontFamily: 'JetBrains Mono', fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 2, background: cfg.bg, color: cfg.color }}>
                   {cfg.label.toUpperCase()}

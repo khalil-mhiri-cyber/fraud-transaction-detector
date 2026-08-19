@@ -16,6 +16,8 @@ export default function UserLayout() {
   const [balance, setBalance] = useState(null)
 
   useEffect(() => {
+    // Fetch primary card balance
+    // Handle gracefully if endpoint doesn't exist yet
     api.get('/cards/primary')
       .then(r => {
         // 204 No Content means no primary card
@@ -25,7 +27,13 @@ export default function UserLayout() {
           setBalance(r.data.balance)
         }
       })
-      .catch(() => setBalance(null))
+      .catch(err => {
+        // If endpoint doesn't exist (404), just set null balance
+        if (err.response?.status === 404) {
+          console.log('Card endpoints not yet implemented - showing default balance');
+        }
+        setBalance(null);
+      })
   }, [])
 
   function handleLogout() {
@@ -37,8 +45,8 @@ export default function UserLayout() {
   const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 
   const formattedBalance = balance != null
-    ? '$' + Number(balance).toLocaleString('en-US', { minimumFractionDigits: 2 })
-    : '$0.00'
+    ? Number(balance).toLocaleString('en-US', { minimumFractionDigits: 2 }) + ' DT'
+    : '0.00 DT'
 
   return (
     <div style={{ minHeight: '100vh', background: '#080d1a', display: 'flex', flexDirection: 'column' }}>

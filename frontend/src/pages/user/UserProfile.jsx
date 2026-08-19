@@ -20,9 +20,16 @@ export default function UserProfile() {
   const [cardError, setCardError] = useState('')
 
   useEffect(() => {
+    // Fetch user cards - handle gracefully if endpoint doesn't exist
     api.get('/cards')
       .then(r => setCards(r.data))
-      .catch(() => setCards([]))
+      .catch(err => {
+        // If endpoint doesn't exist (404), show empty state
+        if (err.response?.status === 404) {
+          console.log('Card management endpoints not yet implemented');
+        }
+        setCards([]);
+      })
   }, [])
 
   function save() { setSaved(true); setTimeout(() => setSaved(false), 2000) }
@@ -42,7 +49,12 @@ export default function UserProfile() {
       setCardForm({ cardNumber: '', cardType: 'VISA', expiryDate: '', balance: '' })
       setShowAddCard(false)
     } catch (err) {
-      setCardError(err.response?.data?.message || 'Failed to add card')
+      // Handle 404 gracefully - endpoint not implemented yet
+      if (err.response?.status === 404) {
+        setCardError('Card management feature is not yet available. Coming soon!')
+      } else {
+        setCardError(err.response?.data?.message || 'Failed to add card')
+      }
     } finally {
       setCardLoading(false)
     }
@@ -52,7 +64,12 @@ export default function UserProfile() {
     try {
       await api.delete(`/cards/${cardId}`)
       setCards(prev => prev.filter(c => c.id !== cardId))
-    } catch {}
+    } catch (err) {
+      // Handle 404 gracefully
+      if (err.response?.status === 404) {
+        console.log('Card delete endpoint not yet available');
+      }
+    }
   }
 
   const inputEl = (value, onChange, placeholder, type = 'text') => (
@@ -118,10 +135,10 @@ export default function UserProfile() {
           <div>
             {labelEl('Currency Preference')}
             <select style={{ width: '100%', padding: '10px 14px', background: 'rgba(8,13,26,0.85)', border: '1px solid rgba(148,163,184,0.10)', borderRadius: 4, fontFamily: 'Instrument Sans', fontSize: 13, color: '#e2e8f0', outline: 'none', appearance: 'none' }}>
+              <option>DT — Tunisian Dinar</option>
               <option>USD — US Dollar</option>
               <option>EUR — Euro</option>
               <option>GBP — British Pound</option>
-              <option>TND — Tunisian Dinar</option>
             </select>
           </div>
         </div>
@@ -193,7 +210,7 @@ export default function UserProfile() {
                 />
               </div>
               <div>
-                {labelEl('Balance ($)')}
+                {labelEl('Balance (DT)')}
                 <input
                   type="number"
                   placeholder="10000.00"
@@ -233,7 +250,7 @@ export default function UserProfile() {
               <div style={{ display: 'flex', gap: 12, marginTop: 3, alignItems: 'center' }}>
                 <span style={{ fontFamily: 'Instrument Sans', fontSize: 11, color: '#64748b' }}>Expires {card.expiryDate}</span>
                 <span style={{ fontFamily: 'JetBrains Mono', fontSize: 12, fontWeight: 700, color: '#10b981' }}>
-                  ${Number(card.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  {Number(card.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })} DT
                 </span>
               </div>
             </div>

@@ -91,10 +91,10 @@ export default function UserDashboard() {
       {/* KPI Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
         {[
-          { label: 'Available Balance', value: `$${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, color: '#38bdf8', icon: '💳' },
-          { label: 'Spent This Month', value: `$${spent.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, color: '#e2e8f0', icon: '📊' },
-          { label: 'Pending', value: `$${pending.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, color: '#f59e0b', icon: '⏳' },
-          { label: 'Blocked Today', value: `$${blockedAmt.toLocaleString('en-US', { minimumFractionDigits: 2 })}`, color: '#ef4444', icon: '🚫' },
+          { label: 'Available Balance', value: `${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })} DT`, color: '#38bdf8', icon: '💳' },
+          { label: 'Spent This Month', value: `${spent.toLocaleString('en-US', { minimumFractionDigits: 2 })} DT`, color: '#e2e8f0', icon: '📊' },
+          { label: 'Pending', value: `${pending.toLocaleString('en-US', { minimumFractionDigits: 2 })} DT`, color: '#f59e0b', icon: '⏳' },
+          { label: 'Blocked Today', value: `${blockedAmt.toLocaleString('en-US', { minimumFractionDigits: 2 })} DT`, color: '#ef4444', icon: '🚫' },
         ].map(c => (
           <div key={c.label} style={{ background: '#0d1528', border: '1px solid rgba(148,163,184,0.08)', borderRadius: 4, padding: '20px 22px' }}>
             <div style={{ fontSize: 20, marginBottom: 10 }}>{c.icon}</div>
@@ -115,7 +115,7 @@ export default function UserDashboard() {
               Transaction TX-{firstBlocked.id} was blocked by our fraud system
             </div>
             <div style={{ fontFamily: 'Instrument Sans', fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
-              A ${Number(firstBlocked.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })} transfer to {firstBlocked.place || firstBlocked.type} was blocked due to a high risk score ({Math.round(Number(firstBlocked.fraudProbability) * 100)}/100). If this was you, contact support.
+              A {Number(firstBlocked.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })} DT transfer to {firstBlocked.place || firstBlocked.type} was blocked due to a high risk score ({Math.round(Number(firstBlocked.fraudProbability) * 100)}/100). If this was you, contact support.
             </div>
           </div>
           <button
@@ -144,8 +144,8 @@ export default function UserDashboard() {
             <LineChart data={spendingData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="2 4" stroke="rgba(148,163,184,0.06)" />
               <XAxis dataKey="month" tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} tickFormatter={v => `$${(v/1000).toFixed(0)}k`} />
-              <Tooltip contentStyle={TT} formatter={v => [`$${Number(v).toLocaleString()}`, 'Spending']} />
+              <YAxis tick={{ fontFamily: 'JetBrains Mono', fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k DT`} />
+              <Tooltip contentStyle={TT} formatter={v => [`${Number(v).toLocaleString()} DT`, 'Spending']} />
               <Line type="monotone" dataKey="amount" stroke="#38bdf8" strokeWidth={2.5} dot={{ r: 4, fill: '#38bdf8', strokeWidth: 2, stroke: '#0d1528' }} activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
@@ -195,7 +195,7 @@ export default function UserDashboard() {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontFamily: 'JetBrains Mono', fontSize: 13, fontWeight: 700, color: status === 'blocked' ? '#ef4444' : '#e2e8f0' }}>
-                      ${Number(tx.amount).toFixed(2)}
+                      {Number(tx.amount).toFixed(2)} DT
                     </div>
                     <span style={{ fontFamily: 'JetBrains Mono', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 2, background: cfg.bg, color: cfg.color }}>
                       {cfg.label.toUpperCase()}
