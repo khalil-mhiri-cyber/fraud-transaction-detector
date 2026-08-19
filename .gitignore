@@ -1,36 +1,54 @@
-# CSV data files
+# Documentation files (local only)
+*_TEST*.md
+*_FLOW.md
+*_RECAP*.md
+*_MANUEL.md
+GUIDE_*.md
+RAPPORT_*.md
+SUMMARY_*.md
+INTEGRATION_*.md
+README_TESTS.md
+FINAL_RECAP.md
+
+# Test files
+test_transactions.json
+
+# Large CSV files
 *.csv
 
-# Maven build output
-target/
-*.class
-
-# ML model binaries (large files)
-*.joblib
-*.pkl
-*.model
-
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-.env
-
-# IDE files
+# IDE
 .idea/
-*.iml
 .vscode/
+*.iml
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Frontend dependencies
-frontend/node_modules/
-frontend/dist/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*.egg-info/
 
-# Design preview
-design-preview/
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# Large zip files
-*.zip
+# Java
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+logs/

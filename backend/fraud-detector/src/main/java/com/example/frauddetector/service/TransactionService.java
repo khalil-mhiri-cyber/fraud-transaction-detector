@@ -113,6 +113,13 @@ public class TransactionService {
                 prediction.getRiskLevel()
         );
 
+        // Set admin status based on fraud detection
+        if (prediction.isFraud()) {
+            transaction.setAdminStatus("PENDING");
+        } else {
+            transaction.setAdminStatus(null);
+        }
+
         // Save transaction with prediction
         transaction = transactionRepository.save(transaction);
 
