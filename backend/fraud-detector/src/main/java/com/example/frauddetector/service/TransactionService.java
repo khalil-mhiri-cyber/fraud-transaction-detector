@@ -119,6 +119,17 @@ public class TransactionService {
         return toResponseDTO(transaction);
     }
 
+    public TransactionResponseDTO reviewTransaction(Long id, String decision) {
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+        if (!"APPROVED".equals(decision) && !"BLOCKED".equals(decision)) {
+            throw new IllegalArgumentException("Decision must be APPROVED or BLOCKED");
+        }
+        transaction.setAdminStatus(decision);
+        transaction = transactionRepository.save(transaction);
+        return toResponseDTO(transaction);
+    }
+
     public List<TransactionResponseDTO> getAllTransactions() {
 
         return transactionRepository.findAll()

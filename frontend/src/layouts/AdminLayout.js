@@ -16,6 +16,8 @@ function AdminLayout() {
 
   function logout() {
     localStorage.removeItem('sentinel_auth');
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('jwt_user');
     navigate('/login');
   }
 

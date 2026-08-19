@@ -57,22 +57,15 @@ function Dashboard() {
     try {
       const [txData, statsData] = await Promise.all([
         getTransactions(),
-        getTransactionStats()
+        getTransactionStats().catch(() => null)
       ]);
       setTransactions(txData);
       setStats(statsData);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching data:', error);
-      // Fallback to mock data if backend is not available
-      setTransactions(TRANSACTIONS.map((t, i) => ({
-        id: i + 1,
-        amount: t.amount,
-        type: t.merchant,
-        timestamp: new Date().toISOString(),
-        fraudulent: t.status === 'fraud'
-      })));
-      setStats(null); // Use simulated stats instead
+      setTransactions([]);
+      setStats(null);
       setLoading(false);
     }
   }
@@ -112,21 +105,21 @@ function Dashboard() {
   }, []);
 
   const suspicious = transactions
-    .filter(t => t.fraudulent === true)
+    .filter(t => t.fraud === true || t.fraudulent === true || t.adminStatus === 'BLOCKED')
     .slice(0, 5)
     .map(t => ({
       id: `TX-${t.id}`,
-      amount: Math.round(t.amount),
-      merchant: t.type || 'Transaction',
-      location: 'Tunisia',
-      time: new Date(t.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-      status: t.fraudulent ? 'fraud' : 'normal',
-      riskScore: 85 + Math.floor(Math.random() * 15)
+      amount: Math.round(Number(t.amount || 0)),
+      merchant: t.place || t.type || 'Transaction',
+      location: t.device || 'Unknown',
+      time: t.time ? new Date(t.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--:--',
+      status: 'fraud',
+      riskScore: Math.round(Number(t.fraudProbability || 0) * 100) || 85,
     }));
 
-  const totalTx = stats?.totalTransactions || simulatedStats.totalTransactions;
-  const fraudCount = stats?.fraudulentCount || simulatedStats.fraudulentCount;
-  const totalAmount = stats?.totalAmount || simulatedStats.totalAmount;
+  const totalTx = stats?.totalTransactions || transactions.length || simulatedStats.totalTransactions;
+  const fraudCount = stats?.fraudulentCount || transactions.filter(t => t.fraud).length || simulatedStats.fraudulentCount;
+  const totalAmount = stats?.totalAmount || transactions.reduce((s, t) => s + Number(t.amount || 0), 0) || simulatedStats.totalAmount;
   const fraudRate = totalTx > 0 ? ((fraudCount / totalTx) * 100).toFixed(2) : '0.00';
 
   if (loading) {

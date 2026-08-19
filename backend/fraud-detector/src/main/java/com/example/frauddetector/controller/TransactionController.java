@@ -74,6 +74,17 @@ public class TransactionController {
         );
     }
 
+    // Admin review endpoint — approve or block a transaction
+    @PatchMapping("/transactions/{id}/review")
+    public ResponseEntity<TransactionResponseDTO> reviewTransaction(
+            @PathVariable Long id,
+            @RequestParam String decision
+    ) {
+        return ResponseEntity.ok(
+                transactionService.reviewTransaction(id, decision.toUpperCase())
+        );
+    }
+
     // Stats endpoints
     @GetMapping("/transactions/stats")
     public ResponseEntity<TransactionStatsDTO> getStatistics() {

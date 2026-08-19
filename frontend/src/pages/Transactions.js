@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getTransactions } from '../services/api';
+import api from '../services/api';
 
 function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -16,19 +17,17 @@ function Transactions() {
       console.log(`✓ Loaded ${data.length} transactions from backend API`);
       setTransactions(data.map(t => ({
         id: t.id,
-        amount: Math.round(t.amount),
-        type: 'Transaction',
+        amount: Math.round(Number(t.amount)),
+        type: t.type || 'Transaction',
         device: t.device,
         location: t.place,
-        timestamp: new Date(t.time).toLocaleString('en-GB', { 
-          day: '2-digit', 
-          month: 'short', 
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+        timestamp: new Date(t.time).toLocaleString('en-GB', {
+          day: '2-digit', month: 'short', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
         }),
-        status: 'normal',
-        riskScore: 20 + Math.floor(Math.random() * 40)
+        status: t.fraud ? 'fraud' : (t.adminStatus === 'BLOCKED' ? 'fraud' : 'normal'),
+        riskScore: Math.round(Number(t.fraudProbability || 0) * 100),
+        adminStatus: t.adminStatus,
       })));
       setLoading(false);
     } catch (error) {
@@ -54,13 +53,28 @@ function Transactions() {
     }));
   };
 
+  const handleReview = async (id, decision) => {
+    try {
+      await api.patch(`/transactions/${id}/review?decision=${decision}`);
+      setTransactions(prev => prev.map(t =>
+        t.id === id ? { ...t, adminStatus: decision } : t
+      ));
+    } catch (err) {
+      console.error('Review failed:', err);
+    }
+  };
+
   const filteredTransactions = transactions
     .filter(t => {
-      const matchesSearch = 
+      const matchesSearch =
         t.id.toString().includes(searchTerm) ||
         t.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.location.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || t.status === statusFilter;
+        (t.location || '').toLowerCase().includes(searchTerm.toLowerCase());
+      let matchesStatus = true;
+      if (statusFilter === 'fraud') matchesStatus = t.status === 'fraud';
+      else if (statusFilter === 'normal') matchesStatus = t.status === 'normal' && t.adminStatus;
+      else if (statusFilter === 'pending') matchesStatus = !t.adminStatus;
+      else matchesStatus = true;
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
@@ -153,7 +167,7 @@ function Transactions() {
           />
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          {['all', 'normal', 'fraud'].map(status => (
+          {['all', 'normal', 'fraud', 'pending'].map(status => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
@@ -190,8 +204,9 @@ function Transactions() {
                   { key: 'device', label: 'Device' },
                   { key: 'location', label: 'Location' },
                   { key: 'timestamp', label: 'Date & Time' },
-                  { key: 'status', label: 'Status' },
-                  { key: 'riskScore', label: 'Risk' }
+                  { key: 'status', label: 'AI Status' },
+                  { key: 'riskScore', label: 'Risk' },
+                  { key: 'adminStatus', label: 'Admin Decision' }
                 ].map(col => (
                   <th
                     key={col.key}
@@ -281,6 +296,39 @@ function Transactions() {
                         {tx.riskScore}
                       </span>
                     </div>
+                  </td>
+                  <td style={{ padding: '14px 16px' }}>
+                    {tx.adminStatus ? (
+                      <span style={{
+                        display: 'inline-block', padding: '3px 10px', borderRadius: 12,
+                        fontFamily: 'Instrument Sans', fontSize: 11, fontWeight: 700,
+                        textTransform: 'uppercase', letterSpacing: '0.04em',
+                        background: tx.adminStatus === 'APPROVED' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+                        color: tx.adminStatus === 'APPROVED' ? '#10b981' : '#ef4444',
+                        border: `1px solid ${tx.adminStatus === 'APPROVED' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                      }}>
+                        {tx.adminStatus}
+                      </span>
+                    ) : (
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          onClick={() => handleReview(tx.id, 'APPROVED')}
+                          style={{
+                            padding: '4px 10px', border: '1px solid rgba(16,185,129,0.35)', borderRadius: 4,
+                            background: 'rgba(16,185,129,0.08)', color: '#10b981',
+                            fontFamily: 'Instrument Sans', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                          }}
+                        >✓ Approve</button>
+                        <button
+                          onClick={() => handleReview(tx.id, 'BLOCKED')}
+                          style={{
+                            padding: '4px 10px', border: '1px solid rgba(239,68,68,0.35)', borderRadius: 4,
+                            background: 'rgba(239,68,68,0.08)', color: '#ef4444',
+                            fontFamily: 'Instrument Sans', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                          }}
+                        >✕ Block</button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

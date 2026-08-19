@@ -1,30 +1,83 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+
+// Admin
 import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
-import './App.css';
+
+// User
+import UserLayout from './layouts/UserLayout';
+import UserDashboard from './pages/user/UserDashboard';
+import UserTransactions from './pages/user/UserTransactions';
+import UserTransactionDetail from './pages/user/UserTransactionDetail';
+import NewTransaction from './pages/user/NewTransaction';
+import UserProfile from './pages/user/UserProfile';
+
+import Analytics from './pages/Analytics';
+import Alerts from './pages/Alerts';
+import Prediction from './pages/Prediction';
+import Settings from './pages/Settings';
+
+function PrivateRoute({ children, requiredRole }) {
+  const auth = (() => {
+    try { return JSON.parse(localStorage.getItem('sentinel_auth') || '{}'); }
+    catch { return {}; }
+  })();
+  const hasAuth = auth.email || localStorage.getItem('jwt_token');
+  if (!hasAuth) return <Navigate to="/login" replace />;
+  if (requiredRole && auth.role !== requiredRole) return <Navigate to="/login" replace />;
+  return children;
+}
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="transactions" element={<Transactions />} />
-          <Route path="prediction" element={<div style={{ color: '#94a3b8' }}>Prediction - Coming soon</div>} />
-          <Route path="analytics" element={<div style={{ color: '#94a3b8' }}>Analytics - Coming soon</div>} />
-          <Route path="alerts" element={<div style={{ color: '#94a3b8' }}>Alerts - Coming soon</div>} />
-          <Route path="settings" element={<div style={{ color: '#94a3b8' }}>Settings - Coming soon</div>} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+
+          {/* Admin routes */}
+          <Route path="/admin" element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="transactions" element={<Transactions />} />
+            <Route path="prediction" element={<Prediction />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="alerts" element={<Alerts />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+
+          {/* User routes */}
+          <Route path="/user" element={<PrivateRoute><UserLayout /></PrivateRoute>}>
+            <Route path="dashboard" element={<UserDashboard />} />
+            <Route path="transactions" element={<UserTransactions />} />
+            <Route path="transactions/:id" element={<UserTransactionDetail />} />
+            <Route path="new-transaction" element={<NewTransaction />} />
+            <Route path="profile" element={<UserProfile />} />
+          </Route>
+
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
+
+function ComingSoon({ title }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontFamily: 'JetBrains Mono', fontSize: 32, color: '#1e2d45', marginBottom: 12 }}>⚡</div>
+        <div style={{ fontFamily: 'Instrument Sans', fontSize: 16, fontWeight: 600, color: '#e2e8f0', marginBottom: 6 }}>{title}</div>
+        <div style={{ fontFamily: 'Instrument Sans', fontSize: 13, color: '#64748b' }}>Coming soon</div>
+      </div>
+    </div>
   );
 }
 
