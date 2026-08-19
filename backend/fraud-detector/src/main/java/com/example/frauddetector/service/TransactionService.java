@@ -278,6 +278,11 @@ public class TransactionService {
                 transaction.getRiskLevel()
         );
 
+        // Admin decision
+        response.setAdminStatus(
+                transaction.getAdminStatus()
+        );
+
         return response;
     }
 }

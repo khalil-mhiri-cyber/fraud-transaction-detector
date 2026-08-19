@@ -13,31 +13,31 @@ public class Transaction {
     @GeneratedValue
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "type")
     private String type;
 
-    @Column(nullable = false)
+    @Column(name = "amount")
     private BigDecimal amount;
 
-    @Column(nullable = false)
+    @Column(name = "old_balance_orig")
     private BigDecimal oldBalanceOrig;
 
-    @Column(nullable = false)
+    @Column(name = "new_balance_orig")
     private BigDecimal newBalanceOrig;
 
-    @Column(nullable = false)
+    @Column(name = "old_balance_dest")
     private BigDecimal oldBalanceDest;
 
-    @Column(nullable = false)
+    @Column(name = "new_balance_dest")
     private BigDecimal newBalanceDest;
 
-    @Column(nullable = false)
+    @Column(name = "place")
     private String place;
 
-    @Column(nullable = false)
+    @Column(name = "device")
     private String device;
 
-    @Column(nullable = false)
+    @Column(name = "time")
     private LocalDateTime time;
 
     @ManyToOne
@@ -45,13 +45,13 @@ public class Transaction {
     private User user;
 
     // ML prediction result
-    @Column(name = "is_fraud", nullable = false)
+    @Column(name = "is_fraud")
     private boolean fraud;
 
-    @Column(name = "fraud_probability", nullable = false)
+    @Column(name = "fraud_probability")
     private BigDecimal fraudProbability;
 
-    @Column(nullable = false)
+    @Column(name = "risk_level")
     private String riskLevel;
 
     // Admin override: null=no action, APPROVED=admin approved, BLOCKED=admin blocked

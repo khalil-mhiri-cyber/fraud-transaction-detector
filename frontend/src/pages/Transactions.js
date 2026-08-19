@@ -13,8 +13,10 @@ function Transactions() {
 
   async function fetchTransactions() {
     try {
-      const data = await getTransactions();
-      console.log(`✓ Loaded ${data.length} transactions from backend API`);
+      // Use simple endpoint that queries database directly
+      const response = await fetch('http://localhost:8080/api/simple/transactions');
+      const data = await response.json();
+      console.log(`✓ Loaded ${data.length} transactions from simple API`);
       
       const mappedData = data.map((t) => {
         const isFraud = t.is_fraud === true || t.isFraud === true || t.fraud === true;
@@ -43,6 +45,12 @@ function Transactions() {
           adminStatus: adminStatus,
         };
       });
+      
+      // Debug: Show first transaction from API and first mapped transaction
+      if (data.length > 0) {
+        console.log('Sample API transaction:', data[0]);
+        console.log('Sample mapped transaction:', mappedData[0]);
+      }
       
       // Debug: Log filter distribution
       const normalCount = mappedData.filter(t => t.status === 'normal').length;
