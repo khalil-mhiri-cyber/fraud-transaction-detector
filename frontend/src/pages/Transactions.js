@@ -15,14 +15,18 @@ function Transactions() {
     try {
       const data = await getTransactions();
       console.log(`✓ Loaded ${data.length} transactions from backend API`);
-      setTransactions(data.map((t) => {
-        // Use REAL fraud data from backend (not simulated)
+      
+      const mappedData = data.map((t) => {
         const isFraud = t.is_fraud === true || t.isFraud === true || t.fraud === true;
         const fraudProb = t.fraud_probability || t.fraudProbability || 0;
         const riskScore = Math.round(fraudProb * 100);
-        
-        // If no fraud probability but marked as fraud, assign high risk score
         const finalRiskScore = isFraud && riskScore === 0 ? 85 : riskScore;
+        
+        // Admin status logic: use backend value or default for fraud
+        let adminStatus = t.admin_status || t.adminStatus || null;
+        if (adminStatus === null && isFraud) {
+          adminStatus = 'PENDING';
+        }
         
         return {
           id: t.id,
@@ -36,9 +40,17 @@ function Transactions() {
           }),
           status: isFraud ? 'fraud' : 'normal',
           riskScore: finalRiskScore,
-          adminStatus: t.admin_status || t.adminStatus || (isFraud ? 'PENDING' : null),
+          adminStatus: adminStatus,
         };
-      }));
+      });
+      
+      // Debug: Log filter distribution
+      const normalCount = mappedData.filter(t => t.status === 'normal').length;
+      const fraudCount = mappedData.filter(t => t.status === 'fraud').length;
+      const pendingCount = mappedData.filter(t => t.adminStatus === 'PENDING').length;
+      console.log(`Filter counts: normal=${normalCount}, fraud=${fraudCount}, pending=${pendingCount}`);
+      
+      setTransactions(mappedData);
       setLoading(false);
     } catch (error) {
       console.error('✗ Error fetching transactions from backend:', error);

@@ -35,7 +35,7 @@ cursor.execute("""
     UPDATE transactions 
     SET is_fraud = TRUE,
         fraud_probability = 0.85 + (RANDOM() * 0.15),
-        admin_status = 'FLAGGED'
+        admin_status = 'PENDING'
     WHERE amount > 200000
 """)
 flagged_count = cursor.rowcount
@@ -46,7 +46,7 @@ cursor.execute("""
     UPDATE transactions 
     SET is_fraud = TRUE,
         fraud_probability = 0.60 + (RANDOM() * 0.25),
-        admin_status = 'FLAGGED'
+        admin_status = 'PENDING'
     WHERE amount <= 200000 
     AND RANDOM() < 0.02
     AND is_fraud = FALSE
